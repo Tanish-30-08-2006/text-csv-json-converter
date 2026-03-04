@@ -1,0 +1,13 @@
+STUDENT_ID|NAME|SUBJECT|GRADE|MARKS_OBTAINED|YEAR
+S-001|Alice Johnson|Mathematics|A|95|2024
+S-002|Bob Martinez|Physics|B|78|2024
+S-003|Clara Singh|Chemistry|A|91|2024
+S-004|David Lee|Biology|C|65|2024
+S-005|Eva Patel|Mathematics|A|98|2024
+S-006|Frank Nguyen|Computer Science|B|82|2024
+S-007|Grace Kim|Physics|A|89|2024
+S-008|Henry Okafor|Chemistry|B|75|2024
+S-009|Isla Brown|Biology|A|94|2024
+S-010|James Wilson|Computer Science|C|61|2024
+S-011|Karen Sharma|Mathematics|B|80|2024
+S-012|Liam Chen|Physics|A|93|2024

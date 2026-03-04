@@ -1,0 +1,9 @@
+flask
+flask-cors
+flask-limiter
+werkzeug
+pandas
+openpyxl
+python-dotenv
+watchdog
+gunicorn

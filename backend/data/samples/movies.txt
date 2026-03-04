@@ -1,0 +1,13 @@
+MOVIE_ID;TITLE;GENRE;DIRECTOR;IMDB_RATING;RELEASE_YEAR
+M-3001;The Shawshank Redemption;Drama;Frank Darabont;9.3;1994
+M-3002;The Godfather;Crime;Francis Ford Coppola;9.2;1972
+M-3003;The Dark Knight;Action;Christopher Nolan;9.0;2008
+M-3004;Pulp Fiction;Thriller;Quentin Tarantino;8.9;1994
+M-3005;Forrest Gump;Drama;Robert Zemeckis;8.8;1994
+M-3006;Inception;Sci-Fi;Christopher Nolan;8.8;2010
+M-3007;The Matrix;Sci-Fi;Lana Wachowski;8.7;1999
+M-3008;Parasite;Thriller;Bong Joon-ho;8.5;2019
+M-3009;Interstellar;Sci-Fi;Christopher Nolan;8.6;2014
+M-3010;Spirited Away;Animation;Hayao Miyazaki;8.6;2001
+M-3011;Whiplash;Drama;Damien Chazelle;8.5;2014
+M-3012;Get Out;Horror;Jordan Peele;7.7;2017

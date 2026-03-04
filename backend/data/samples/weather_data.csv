@@ -1,0 +1,13 @@
+DATE,CITY,TEMPERATURE_C,HUMIDITY_PCT,CONDITION,WIND_KMPH
+2024-01-15,Mumbai,32,85,Humid,12
+2024-01-15,Delhi,18,60,Sunny,8
+2024-01-15,New York,-3,72,Snowy,25
+2024-01-15,London,7,88,Rainy,30
+2024-01-15,Tokyo,10,65,Cloudy,15
+2024-01-15,Sydney,27,55,Sunny,18
+2024-01-15,Dubai,28,45,Clear,10
+2024-01-15,Paris,5,80,Overcast,22
+2024-01-15,Singapore,33,90,Thunderstorm,9
+2024-01-15,Toronto,-8,68,Blizzard,40
+2024-01-15,Berlin,3,75,Foggy,7
+2024-01-15,São Paulo,25,78,Partly Cloudy,14

@@ -1,0 +1,39 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual Environments & Secrets ────────────────────────
+venv/
+.venv/
+env/
+.env
+ENV/
+backend/.env
+
+# ── Generated Output Files ───────────────────────────────
+# These are produced every time converter.py runs — no need to track them in git
+data/processed/*.csv
+data/processed/*.xlsx
+data/processed/*.json
+
+# ── Raw Input Files (optional — keep txt, ignore temp) ───
+backend/data/raw/*
+backend/data/processed/*
+logs/
+
+# ── IDE / OS ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# ── Jupyter Notebooks ────────────────────────────────────
+.ipynb_checkpoints/
