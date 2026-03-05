@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog — DataDrop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080d1a; --amber: #f0a500; --amber-soft: rgba(240,165,0,0.12);
+            --amber-med: rgba(240,165,0,0.28); --amber-hard: rgba(240,165,0,0.55);
+            --white-elec: #e8f4ff; --white: #ffffff; --grey: #8892a4; --teal: #00d4d4;
+            --card-sf: rgba(255,255,255,0.028); --card-border: rgba(240,165,0,0.12);
+            --card-hover: rgba(240,165,0,0.45);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        body { background: var(--bg); color: var(--grey); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; scroll-behavior: smooth; }
+        h1, h2, h3, h4 { font-family: 'Syne', sans-serif; color: var(--white); }
+        a { text-decoration: none; color: inherit; transition: color 0.3s; display: inline-block; }
+        
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; position:relative; z-index:10; }
+        section { padding: 80px 0 120px; }
+        
+        .cursor-dot { width: 8px; height: 8px; background: var(--amber); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); }
+        .cursor-ring { width: 32px; height: 32px; border: 2px solid var(--amber); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.15s, height 0.15s; }
+        .cursor-ring.hover { width: 48px; height: 48px; }
+        .cursor-ring.click { width: 80px; height: 80px; opacity: 0; transition: all 0.3s; }
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--amber); width: 0%; z-index: 99999; }
+        .noise-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9998; opacity: 0.03; filter: url(#noise); }
+        #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+        .magnetic { display: inline-block; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .magnetic .mag-content { display: inline-block; pointer-events: none; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        
+        .tilt-card { background: var(--card-sf); border: 1px solid var(--card-border); border-radius: 20px; position: relative; overflow: hidden; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s, box-shadow 0.3s; }
+        .tilt-card .spotlight { position: absolute; inset:0; pointer-events: none; background: radial-gradient(circle at 50% 50%, rgba(240,165,0,0.15) 0%, transparent 60%); opacity: 0; transition: opacity 0.3s; z-index: 1; }
+        .tilt-card:hover .spotlight { opacity: 1; }
+        .tilt-card:hover { border-color: var(--card-hover); }
+        .tilt-content { position: relative; z-index: 2; transform: translateZ(20px); }
+
+        .reveal-text span { display: inline-block; opacity: 0; transform: translateY(-30px); }
+        
+        nav { position: fixed; top: 0; width: 100%; height: 70px; background: rgba(10,13,26,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(240,165,0,0.15); z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+        .nav-logo { width: 32px; height: 32px; background: var(--amber); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--white); font-family: 'Syne'; font-weight: 800; font-size: 18px; }
+        .nav-center a { color: var(--grey); margin: 0 15px; font-size: 15px; }
+        .nav-center a:hover { color: var(--white); }
+        .btn-pill { border-radius: 100px; padding: 12px 28px; font-weight: 500; font-size: 15px;}
+        .btn-amber { background: var(--amber); color: var(--bg); border: none; font-family:'Inter'; text-align:center;}
+
+        /* Hero */
+        #hero { padding-top: 160px; text-align: left; }
+        .badge-pill { display: inline-block; background: var(--amber-soft); color: var(--amber); font-size: 11px; padding: 4px 12px; border-radius: 100px; font-weight: 600; text-transform: uppercase;}
+        .badge-latest { background: var(--amber); color: var(--bg); display: inline-flex; align-items:center;}
+        .badge-initial { background: transparent; border: 1px dashed rgba(255,255,255,0.4); color: var(--grey); }
+
+        /* Timeline */
+        .timeline-wrap { position: relative; margin-top: 60px; }
+        .timeline-line { position: absolute; left: 16px; top: 0; bottom: 0; width: 2px; background: rgba(240,165,0,0.3); }
+
+        .tl-entry { position: relative; padding-left: 60px; margin-bottom: 60px; opacity: 0; transform: translateX(-30px); transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .tl-entry.visible { opacity: 1; transform: translateX(0); }
+        
+        .tl-dot { position: absolute; left: 11px; top: 32px; width: 12px; height: 12px; background: var(--amber); border-radius: 50%; box-shadow: 0 0 15px var(--amber-hard); }
+        
+        .tl-card { padding: 32px; }
+        .tl-card-latest { border-color: rgba(240,165,0,0.4); box-shadow: 0 0 30px rgba(240,165,0,0.05); }
+
+        .tl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 16px;}
+        .tl-date { color: var(--amber); font-size: 13px; font-weight: 600; }
+        .tl-title { font-size: 28px; margin: 0 16px; }
+
+        .tl-list { display: flex; flex-direction: column; gap: 12px; }
+        .tl-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: var(--white); }
+        .tl-list svg { width: 16px; height: 16px; fill: var(--amber); margin-top: 4px; flex-shrink: 0; }
+        .code-snip { font-family: monospace; color: var(--white-elec); font-size: 13px; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+
+        /* Footer */
+        .divider-line { height: 1px; background: rgba(240,165,0,0.08); margin-bottom: 40px; }
+        .footer-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; font-size: 14px; position: relative; z-index: 2; align-items: center; }
+        .footer-center { display: flex; gap: 24px; justify-content: center; }
+        .footer-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        .copy-text { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(240,165,0,0.06); text-align: center; font-size: 12px; color: #555c6b; position: relative; z-index: 2;}
+
+        @media (max-width: 768px) {
+            .footer-cols { grid-template-columns: 1fr; }
+            .nav-center, .nav-right .api-status { display: none; }
+            nav { padding: 0 20px; }
+            .footer-center { flex-direction: column; gap: 12px; text-align: center;}
+            .footer-right, .footer-left { text-align: center; align-items: center; justify-content: center;}
+            .tl-header { flex-direction: column; align-items: flex-start; gap: 8px;}
+            .tl-title { margin: 8px 0; }
+            .tl-entry { padding-left: 40px; }
+            .timeline-line { left: 10px; }
+            .tl-dot { left: 5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+    <div id="scroll-progress"></div>
+    <svg style="display:none"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter></svg>
+    <div class="noise-overlay"></div>
+    <canvas id="particles"></canvas>
+
+    <nav>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div class="nav-logo">D</div>
+            <span style="font-family:'Syne'; font-weight:700; font-size:24px; color:var(--white);">DataDrop</span>
+        </div>
+        <div class="nav-center">
+            <a href="index.html" class="magnetic"><span class="mag-content">Home</span></a>
+            <a href="playground.html" class="magnetic"><span class="mag-content">Playground</span></a>
+            <a href="changelog.html" style="color:var(--white)" class="magnetic"><span class="mag-content">Changelog</span></a>
+        </div>
+        <div style="display:flex; align-items:center; gap:20px;" class="nav-right">
+            <div class="api-status">
+                <div class="status-dot" id="api-dot" style="width:8px; height:8px; border-radius:50%; background:#8892a4;"></div>
+                <span style="font-size:13px;">API Status</span>
+            </div>
+            <a href="about.html" style="font-size:15px;" class="magnetic"><span class="mag-content">Meet the Developer</span></a>
+            <a href="index.html#upload" class="magnetic btn-pill btn-amber"><span class="mag-content">Try Now</span></a>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="container">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <h1 class="reveal-text" style="font-size:64px; letter-spacing:-2px; line-height:1.1;">Changelog</h1>
+                <span class="badge-pill badge-latest" style="transform:translateY(8px);">v1.3 Latest</span>
+            </div>
+            <p style="color:var(--grey); font-size:18px; margin-top:12px;">Every version, every improvement</p>
+            
+            <div class="timeline-wrap">
+                <div class="timeline-line"></div>
+                
+                <!-- Entry 1 -->
+                <div class="tl-entry">
+                    <div class="tl-dot"></div>
+                    <div class="tilt-card tl-card tl-card-latest">
+                        <div class="spotlight"></div>
+                        <div class="tilt-content">
+                            <div class="tl-header">
+                                <div style="display:flex; align-items:center;">
+                                    <span class="badge-pill badge-latest">LATEST</span>
+                                    <h3 class="tl-title">v1.3</h3>
+                                </div>
+                                <span class="tl-date">March 5, 2026</span>
+                            </div>
+                            <ul class="tl-list">
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>Frontend launched — <span class="code-snip">index.html</span>, <span class="code-snip">about.html</span>, <span class="code-snip">playground.html</span>, <span class="code-snip">changelog.html</span></span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>12 animation systems implemented</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>API Playground built</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>Sample file auto-load feature</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entry 2 -->
+                <div class="tl-entry">
+                    <div class="tl-dot"></div>
+                    <div class="tilt-card tl-card">
+                        <div class="spotlight"></div>
+                        <div class="tilt-content">
+                            <div class="tl-header">
+                                <div style="display:flex; align-items:center;">
+                                    <h3 class="tl-title" style="margin-left:0;">v1.2</h3>
+                                </div>
+                                <span class="tl-date">March 5, 2026</span>
+                            </div>
+                            <ul class="tl-list">
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>POST <span class="code-snip">/preview</span> endpoint added</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>GET <span class="code-snip">/json-preview</span> endpoint added</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>GET <span class="code-snip">/api-docs</span> endpoint added</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>GET <span class="code-snip">/samples</span> and GET <span class="code-snip">/samples/&lt;filename&gt;</span> added</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>File validation report feature</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>JSON inline preview feature</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entry 3 -->
+                <div class="tl-entry">
+                    <div class="tl-dot"></div>
+                    <div class="tilt-card tl-card">
+                        <div class="spotlight"></div>
+                        <div class="tilt-content">
+                            <div class="tl-header">
+                                <div style="display:flex; align-items:center;">
+                                    <h3 class="tl-title" style="margin-left:0;">v1.1</h3>
+                                </div>
+                                <span class="tl-date">March 5, 2026</span>
+                            </div>
+                            <ul class="tl-list">
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>Deployed to Render free tier</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>Production Flask server with gunicorn</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>CORS configured for frontend connections</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>Rate limiting — 10/min upload, 20/min preview</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>Environment variables secured</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entry 4 -->
+                <div class="tl-entry">
+                    <div class="tl-dot" style="background:var(--grey); box-shadow:none;"></div>
+                    <div class="tilt-card tl-card">
+                        <div class="spotlight"></div>
+                        <div class="tilt-content">
+                            <div class="tl-header">
+                                <div style="display:flex; align-items:center;">
+                                    <span class="badge-pill badge-initial">INITIAL</span>
+                                    <h3 class="tl-title">v1.0</h3>
+                                </div>
+                                <span class="tl-date">March 5, 2026</span>
+                            </div>
+                            <ul class="tl-list">
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span><span class="code-snip">converter.py</span> — auto-delimiter detection</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span><span class="code-snip">watcher.py</span> — local folder monitoring</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span><span class="code-snip">security.py</span> — file validation and sanitization</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>POST <span class="code-snip">/upload</span> endpoint</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>GET <span class="code-snip">/download</span> endpoint</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>GET <span class="code-snip">/stats</span> endpoint</span></li>
+                                <li><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg> <span>GET <span class="code-snip">/health</span> endpoint</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section style="background: #050510; padding:60px 0 40px; border-top: 1px solid rgba(255,255,255,0.03);">
+        <div class="container">
+            <div class="divider-line"></div>
+            <div class="footer-cols">
+                <div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                        <div class="nav-logo" style="width:24px; height:24px; font-size:14px;">D</div>
+                        <span style="font-family:'Syne'; font-weight:700; color:var(--white);">DataDrop</span>
+                    </div>
+                    <p style="color:var(--grey);">From raw to ready in seconds.</p>
+                </div>
+                <div class="footer-center">
+                    <a href="https://github.com/Tanish-30-08-2006/text-csv-json-converter" target="_blank">GitHub</a>
+                    <a href="playground.html">Playground</a>
+                    <a href="changelog.html" style="color:var(--white);">Changelog</a>
+                    <a href="https://text-csv-json-converter.onrender.com/health" target="_blank">Health Check</a>
+                </div>
+                <div class="footer-right">
+                    <span style="background:var(--amber-soft); color:var(--amber); font-size:10px; font-weight:600; padding:2px 8px; border-radius:100px;">v1.3</span>
+                    <p style="color:var(--grey);">Built with Python, Flask and ❤️</p>
+                </div>
+            </div>
+            <div class="copy-text">copyright © 2026 DataDrop by Tanish Sanghavi</div>
+        </div>
+    </section>
+
+    <script>
+        const API_BASE = 'https://text-csv-json-converter.onrender.com';
+
+        // Animations Global
+        const cursorDot = document.querySelector('.cursor-dot'); const cursorRing = document.querySelector('.cursor-ring');
+        let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2, ringX = mouseX, ringY = mouseY;
+        document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px)`; });
+        function drawCursor() { ringX += (mouseX - ringX) * 0.12; ringY += (mouseY - ringY) * 0.12; cursorRing.style.transform = `translate(${ringX}px, ${ringY}px)`; requestAnimationFrame(drawCursor); }
+        drawCursor();
+        document.querySelectorAll('a, button, .magnetic').forEach(el => { el.addEventListener('mouseenter', () => cursorRing.classList.add('hover')); el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover')); });
+        document.addEventListener('mousedown', () => cursorRing.classList.add('click')); document.addEventListener('mouseup', () => cursorRing.classList.remove('click'));
+
+        document.querySelectorAll('.magnetic').forEach(btn => {
+            btn.addEventListener('mousemove', e => { const rect = btn.getBoundingClientRect(); const x = e.clientX - rect.left - rect.width/2; const y = e.clientY - rect.top - rect.height/2; btn.style.transform = `translate(${x*0.2}px, ${y*0.2}px)`; const content = btn.querySelector('.mag-content'); if (content) content.style.transform = `translate(${x*0.1}px, ${y*0.1}px)`; });
+            btn.addEventListener('mouseleave', () => { btn.style.transform = ''; const content = btn.querySelector('.mag-content'); if (content) content.style.transform = ''; });
+        });
+
+        // Particles
+        const cvs = document.getElementById('particles'); const ctx = cvs.getContext('2d'); let pts = [];
+        window.addEventListener('resize', () => { cvs.width = window.innerWidth; cvs.height = window.innerHeight; }); cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+        for (let i = 0; i < 80; i++) pts.push({ x: Math.random()*cvs.width, y: Math.random()*cvs.height, vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5, r: Math.random()+1 });
+        function drawParticles() {
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            for (let i = 0; i < pts.length; i++) {
+                let p = pts[i]; let dx = p.x - mouseX; let dy = p.y - mouseY; let dist = Math.sqrt(dx*dx + dy*dy);
+                let tvx = p.vx, tvy = p.vy; if (dist < 120) { tvx += dx/dist * 0.5; tvy += dy/dist * 0.5; }
+                p.x += tvx; p.y += tvy;
+                if (p.x < 0) p.x = cvs.width; if (p.x > cvs.width) p.x = 0; if (p.y < 0) p.y = cvs.height; if (p.y > cvs.height) p.y = 0;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fillStyle = 'rgba(240,165,0,0.25)'; ctx.fill();
+                for (let j = i+1; j < pts.length; j++) { let d = Math.sqrt((p.x - pts[j].x)**2 + (p.y - pts[j].y)**2); if (d < 100) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(pts[j].x, pts[j].y); ctx.strokeStyle = `rgba(240,165,0,${0.06 * (1 - d/100)})`; ctx.stroke(); } }
+            }
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+
+        window.addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - document.documentElement.clientHeight; document.getElementById('scroll-progress').style.width = (window.scrollY / h) * 100 + "%"; });
+
+        // Intersection Observers - Reveals and Timeline
+        const observer = new IntersectionObserver(entries => { 
+            entries.forEach(entry => { 
+                if (entry.isIntersecting) {
+                    if (entry.target.classList.contains('reveal-text') && !entry.target.classList.contains('revealed')) { 
+                        const txt = entry.target.innerText; entry.target.innerHTML = ''; 
+                        [...txt].forEach((char, i) => { const span = document.createElement('span'); span.innerText = char === ' ' ? '\u00A0' : char; span.style.transition = `opacity 0.6s ${i*25}ms, transform 0.6s ${i*25}ms`; setTimeout(() => { span.style.opacity = 1; span.style.transform = 'translateY(0)'; }, 50); entry.target.appendChild(span); }); entry.target.classList.add('revealed'); 
+                    }
+                    if (entry.target.classList.contains('tl-entry')) {
+                        setTimeout(() => entry.target.classList.add('visible'), 100);
+                    }
+                } 
+            }); 
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.reveal-text, .tl-entry').forEach(el => observer.observe(el));
+
+        // 3D Tilt Card
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', e => { const rect = card.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const cx = rect.width/2; const cy = rect.height/2; const rotX = ((y - cy)/cy) * -10; const rotY = ((x - cx)/cx) * 10; card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`; const spotlight = card.querySelector('.spotlight'); if (spotlight) spotlight.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(240,165,0,0.15) 0%, transparent 60%)`; });
+            card.addEventListener('mouseleave', () => { card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`; });
+        });
+
+        async function checkHealth() { try { const res = await fetch(`${API_BASE}/health`); const dot = document.getElementById('api-dot'); if (res.ok) { dot.style.background = '#00ff88'; dot.style.boxShadow = '0 0 10px #00ff88'; } else { dot.style.background = '#ff5050'; dot.style.boxShadow = '0 0 10px #ff5050'; } } catch(e) { document.getElementById('api-dot').style.background = '#ff5050'; } }
+        checkHealth(); setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>

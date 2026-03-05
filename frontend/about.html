@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — DataDrop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080d1a; --amber: #f0a500; --amber-soft: rgba(240,165,0,0.12);
+            --amber-med: rgba(240,165,0,0.28); --amber-hard: rgba(240,165,0,0.55);
+            --white-elec: #e8f4ff; --white: #ffffff; --grey: #8892a4; --teal: #00d4d4;
+            --card-sf: rgba(255,255,255,0.028); --card-border: rgba(240,165,0,0.12);
+            --card-hover: rgba(240,165,0,0.45);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        body { background: var(--bg); color: var(--grey); font-family: 'Inter', sans-serif; font-size: 17px; line-height: 1.7; overflow-x: hidden; scroll-behavior: smooth; }
+        h1, h2, h3, h4 { font-family: 'Syne', sans-serif; color: var(--white); }
+        a { text-decoration: none; color: inherit; transition: color 0.3s; display: inline-block; }
+        
+        .container { max-width: 1140px; margin: 0 auto; padding: 0 20px; position:relative; z-index:10; }
+        section { padding: 140px 0; }
+        
+        .cursor-dot { width: 8px; height: 8px; background: var(--amber); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); }
+        .cursor-ring { width: 32px; height: 32px; border: 2px solid var(--amber); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.15s, height 0.15s; }
+        .cursor-ring.hover { width: 48px; height: 48px; }
+        .cursor-ring.click { width: 80px; height: 80px; opacity: 0; transition: all 0.3s; }
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--amber); width: 0%; z-index: 99999; }
+        .noise-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9998; opacity: 0.03; filter: url(#noise); }
+        #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+        .magnetic { display: inline-block; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .magnetic .mag-content { display: inline-block; pointer-events: none; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        
+        .tilt-card { background: var(--card-sf); border: 1px solid var(--card-border); border-radius: 20px; position: relative; overflow: hidden; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .tilt-card .spotlight { position: absolute; inset:0; pointer-events: none; background: radial-gradient(circle at 50% 50%, rgba(240,165,0,0.15) 0%, transparent 60%); opacity: 0; transition: opacity 0.3s; z-index: 1; }
+        .tilt-card:hover .spotlight { opacity: 1; }
+        .tilt-card:hover { border-color: var(--card-hover); }
+        .tilt-content { position: relative; z-index: 2; transform: translateZ(20px); }
+
+        .reveal-text span { display: inline-block; opacity: 0; transform: translateY(-30px); }
+        
+        nav { position: fixed; top: 0; width: 100%; height: 70px; background: rgba(10,13,26,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(240,165,0,0.15); z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+        .nav-logo { width: 32px; height: 32px; background: var(--amber); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--white); font-family: 'Syne'; font-weight: 800; font-size: 18px; }
+        .nav-center a { color: var(--grey); margin: 0 15px; font-size: 15px; }
+        .nav-center a:hover { color: var(--white); }
+        .btn-pill { border-radius: 100px; padding: 12px 28px; font-weight: 500; font-size: 15px;}
+        .btn-amber { background: var(--amber); color: var(--bg); border: none; }
+        .btn-glass { background: transparent; border: 1px solid rgba(240,165,0,0.4); color: var(--amber); }
+
+        #hero { padding-top: 160px; }
+        .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .social-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid rgba(240,165,0,0.3); border-radius: 100px; color: var(--white); font-size: 14px; background: rgba(255,255,255,0.02); margin-right: 12px; margin-bottom: 12px;}
+        .social-btn svg { width: 18px; height: 18px; fill: var(--amber); }
+        .social-btn:hover { background: rgba(240,165,0,0.1); border-color: var(--amber); }
+
+        .project-card { padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(240,165,0,0.05); border: 1px solid rgba(240,165,0,0.4); }
+        .tag-pill { display: inline-block; background: var(--amber-soft); color: var(--amber); font-size: 11px; padding: 4px 10px; border-radius: 100px; margin-right: 6px; margin-bottom: 12px; font-weight: 600; text-transform: uppercase;}
+        
+        .skills-group { margin-bottom: 40px; }
+        .skill-tag { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: rgba(255,255,255,0.04); border: 1px solid var(--amber); color: var(--amber); border-radius: 100px; font-size: 14px; font-weight: 600; margin: 0 12px 16px 0; transition: all 0.3s; }
+        .skill-tag:hover { background: rgba(240,165,0,0.1); border-color: rgba(240,165,0,0.6); box-shadow: 0 0 15px var(--amber-soft); }
+        .skill-tag svg { width: 16px; height: 16px; fill: var(--amber); }
+
+        .story-card { padding: 40px; border-radius: 20px; background: var(--card-sf); border: 1px solid var(--card-border); position: relative; }
+        .story-card::before { content: '"'; position: absolute; top: 20px; left: 30px; font-family: 'Syne'; font-size: 80px; color: var(--amber); opacity: 0.2; line-height: 1; }
+        .story-text { position: relative; z-index: 2; font-size: 17px; line-height: 1.8; color: var(--white); }
+
+        /* Footer */
+        .divider-line { height: 1px; background: rgba(240,165,0,0.08); margin-bottom: 40px; }
+        .footer-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; font-size: 14px; position: relative; z-index: 2; align-items: center; }
+        .footer-center { display: flex; gap: 24px; justify-content: center; }
+        .footer-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        .copy-text { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(240,165,0,0.06); text-align: center; font-size: 12px; color: #555c6b; position: relative; z-index: 2;}
+
+        @media (max-width: 768px) {
+            .two-cols, .footer-cols { grid-template-columns: 1fr; }
+            .nav-center, .nav-right .api-status { display: none; }
+            nav { padding: 0 20px; }
+            .footer-center { flex-direction: column; gap: 12px; text-align: center;}
+            .footer-right, .footer-left { text-align: center; align-items: center; justify-content: center;}
+        }
+        @media (max-width: 600px) {
+            #about-hero-title { white-space: normal !important; font-size: 42px !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+    <div id="scroll-progress"></div>
+    <svg style="display:none"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter></svg>
+    <div class="noise-overlay"></div>
+    <canvas id="particles"></canvas>
+
+    <nav>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div class="nav-logo">D</div>
+            <span style="font-family:'Syne'; font-weight:700; font-size:24px; color:var(--white);">DataDrop</span>
+        </div>
+        <div class="nav-center">
+            <a href="index.html" class="magnetic"><span class="mag-content">Home</span></a>
+            <a href="playground.html" class="magnetic"><span class="mag-content">Playground</span></a>
+            <a href="changelog.html" class="magnetic"><span class="mag-content">Changelog</span></a>
+        </div>
+        <div style="display:flex; align-items:center; gap:20px;" class="nav-right">
+            <div class="api-status">
+                <div class="status-dot" id="api-dot" style="width:8px; height:8px; border-radius:50%; background:#8892a4;"></div>
+                <span style="font-size:13px;">API Status</span>
+            </div>
+            <a href="about.html" style="font-size:15px; color:var(--white);">Meet the Developer</a>
+            <a href="index.html#upload" class="magnetic btn-pill btn-amber"><span class="mag-content">Try Now</span></a>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="container two-cols">
+            <div>
+                <h1 id="about-hero-title" class="reveal-text" style="font-size:clamp(36px, 4.5vw, 64px); white-space:nowrap; letter-spacing:-2px; line-height:1.1;">Tanish Sanghavi</h1>
+                <p style="color:var(--amber); font-size:18px; margin: 10px 0 30px;">Full Stack Developer · DAIICT, Gandhinagar</p>
+                <div style="display:flex; flex-wrap:wrap;">
+                    <a href="https://github.com/Tanish-30-08-2006" target="_blank" class="social-btn magnetic"><span class="mag-content" style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg> GitHub</span></a>
+                    <a href="https://www.instagram.com/tanish__sanghavi/" target="_blank" class="social-btn magnetic"><span class="mag-content" style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg> Instagram</span></a>
+                    <a href="mailto:tanishsanghavi2@gmail.com" class="social-btn magnetic"><span class="mag-content" style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg> tanishsanghavi2@gmail.com</span></a>
+                </div>
+            </div>
+            
+            <div class="tilt-card project-card">
+                <div class="spotlight"></div>
+                <div class="tilt-content">
+                    <div class="nav-logo" style="margin-bottom:16px;">D</div>
+                    <h3 style="font-size:28px; margin-bottom:16px;">DataDrop</h3>
+                    <div>
+                        <span class="tag-pill">Python</span><span class="tag-pill">Flask</span><span class="tag-pill">Gunicorn</span>
+                        <span class="tag-pill">Render</span><span class="tag-pill">REST API</span>
+                    </div>
+                    <p style="font-size:15px; margin: 20px 0;">A full-stack file converter with 9 API endpoints, auto-delimiter detection, and 4 simultaneous output formats.</p>
+                    <div style="display:flex; gap:12px; margin-top:30px;">
+                        <a href="https://text-csv-json-converter.onrender.com" target="_blank" class="magnetic btn-pill btn-amber" style="padding:10px 24px;"><span class="mag-content">View Live</span></a>
+                        <a href="https://github.com/Tanish-30-08-2006/text-csv-json-converter" target="_blank" class="magnetic btn-pill btn-glass" style="padding:10px 24px;"><span class="mag-content">GitHub</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2 class="reveal-text" style="font-size:52px; margin-bottom:40px;">Skills</h2>
+            
+            <div class="skills-group">
+                <h4 style="color:var(--grey); font-family:'Inter'; text-transform:uppercase; font-size:13px; letter-spacing:2px; margin-bottom:20px;">Current skills</h4>
+                <div>
+                    <span class="skill-tag magnetic"><span class="mag-content">Web Development</span></span>
+                    <span class="skill-tag magnetic"><span class="mag-content">Python</span></span>
+                    <span class="skill-tag magnetic"><span class="mag-content">Flask</span></span>
+                    <span class="skill-tag magnetic"><span class="mag-content">REST APIs</span></span>
+                    <span class="skill-tag magnetic"><span class="mag-content">Git</span></span>
+                    <span class="skill-tag magnetic"><span class="mag-content">Cloud Deployment</span></span>
+                    <span class="skill-tag magnetic"><span class="mag-content">HTML/CSS</span></span>
+                    <span class="skill-tag magnetic"><span class="mag-content">JavaScript</span></span>
+                </div>
+            </div>
+            
+            <div class="skills-group">
+                <h4 style="color:var(--grey); font-family:'Inter'; text-transform:uppercase; font-size:13px; letter-spacing:2px; margin-bottom:20px;">Learning</h4>
+                <div>
+                    <span class="skill-tag magnetic" style="border-style:dashed;"><span class="mag-content" style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Data Analytics</span></span>
+                    <span class="skill-tag magnetic" style="border-style:dashed;"><span class="mag-content" style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Machine Learning</span></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <div class="story-card tilt-card">
+                <div class="spotlight"></div>
+                <div class="tilt-content">
+                    <p class="story-text">Built DataDrop entirely from scratch — Python backend with 9 REST API endpoints, security layer with rate limiting and file validation, cloud deployment on Render, and a complete frontend with 12 animation systems. Every component was designed and coded without templates or boilerplate.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section style="background: #050510; padding:60px 0 40px; border-top: 1px solid rgba(255,255,255,0.03);">
+        <div class="container">
+            <div class="divider-line"></div>
+            <div class="footer-cols">
+                <div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                        <div class="nav-logo" style="width:24px; height:24px; font-size:14px;">D</div>
+                        <span style="font-family:'Syne'; font-weight:700; color:var(--white);">DataDrop</span>
+                    </div>
+                    <p style="color:var(--grey);">From raw to ready in seconds.</p>
+                </div>
+                <div class="footer-center">
+                    <a href="https://github.com/Tanish-30-08-2006/text-csv-json-converter" target="_blank">GitHub</a>
+                    <a href="playground.html">Playground</a>
+                    <a href="changelog.html">Changelog</a>
+                    <a href="https://text-csv-json-converter.onrender.com/health" target="_blank">Health Check</a>
+                </div>
+                <div class="footer-right">
+                    <span style="background:var(--amber-soft); color:var(--amber); font-size:10px; font-weight:600; padding:2px 8px; border-radius:100px;">v1.3</span>
+                    <p style="color:var(--grey);">Built with Python, Flask and ❤️</p>
+                </div>
+            </div>
+            <div class="copy-text">copyright © 2026 DataDrop by Tanish Sanghavi</div>
+        </div>
+    </section>
+
+    <script>
+        const API_BASE = 'https://text-csv-json-converter.onrender.com';
+
+        // Custom Cursor
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorRing = document.querySelector('.cursor-ring');
+        let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2, ringX = mouseX, ringY = mouseY;
+        document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px)`; });
+        function drawCursor() { ringX += (mouseX - ringX) * 0.12; ringY += (mouseY - ringY) * 0.12; cursorRing.style.transform = `translate(${ringX}px, ${ringY}px)`; requestAnimationFrame(drawCursor); }
+        drawCursor();
+        document.querySelectorAll('a, button, .magnetic, .skill-tag').forEach(el => { el.addEventListener('mouseenter', () => cursorRing.classList.add('hover')); el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover')); });
+        document.addEventListener('mousedown', () => cursorRing.classList.add('click'));
+        document.addEventListener('mouseup', () => cursorRing.classList.remove('click'));
+
+        // Magnetic Buttons
+        document.querySelectorAll('.magnetic').forEach(btn => {
+            btn.addEventListener('mousemove', e => { const rect = btn.getBoundingClientRect(); const x = e.clientX - rect.left - rect.width/2; const y = e.clientY - rect.top - rect.height/2; btn.style.transform = `translate(${x*0.3}px, ${y*0.3}px)`; const content = btn.querySelector('.mag-content'); if (content) content.style.transform = `translate(${x*0.1}px, ${y*0.1}px)`; });
+            btn.addEventListener('mouseleave', () => { btn.style.transform = ''; const content = btn.querySelector('.mag-content'); if (content) content.style.transform = ''; });
+        });
+
+        // 3D Tilt Card
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', e => { const rect = card.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const cx = rect.width/2; const cy = rect.height/2; const rotX = ((y - cy)/cy) * -10; const rotY = ((x - cx)/cx) * 10; card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`; const spotlight = card.querySelector('.spotlight'); if (spotlight) spotlight.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(240,165,0,0.15) 0%, transparent 60%)`; });
+            card.addEventListener('mouseleave', () => { card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`; });
+        });
+
+        // Particles
+        const cvs = document.getElementById('particles'); const ctx = cvs.getContext('2d'); let pts = [];
+        window.addEventListener('resize', () => { cvs.width = window.innerWidth; cvs.height = window.innerHeight; }); cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+        for (let i = 0; i < 80; i++) pts.push({ x: Math.random()*cvs.width, y: Math.random()*cvs.height, vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5, r: Math.random()+1 });
+        function drawParticles() {
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            for (let i = 0; i < pts.length; i++) {
+                let p = pts[i]; let dx = p.x - mouseX; let dy = p.y - mouseY; let dist = Math.sqrt(dx*dx + dy*dy);
+                let tvx = p.vx, tvy = p.vy; if (dist < 120) { tvx += dx/dist * 0.5; tvy += dy/dist * 0.5; }
+                p.x += tvx; p.y += tvy;
+                if (p.x < 0) p.x = cvs.width; if (p.x > cvs.width) p.x = 0; if (p.y < 0) p.y = cvs.height; if (p.y > cvs.height) p.y = 0;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fillStyle = 'rgba(240,165,0,0.25)'; ctx.fill();
+                for (let j = i+1; j < pts.length; j++) { let d = Math.sqrt((p.x - pts[j].x)**2 + (p.y - pts[j].y)**2); if (d < 100) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(pts[j].x, pts[j].y); ctx.strokeStyle = `rgba(240,165,0,${0.06 * (1 - d/100)})`; ctx.stroke(); } }
+            }
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById('scroll-progress').style.width = (window.scrollY / h) * 100 + "%";
+        });
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.target.classList.contains('reveal-text') && !entry.target.classList.contains('revealed')) {
+                    const txt = entry.target.innerText; entry.target.innerHTML = '';
+                    [...txt].forEach((char, i) => {
+                        const span = document.createElement('span'); span.innerText = char === ' ' ? '\u00A0' : char;
+                        span.style.transition = `opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${i*25}ms, transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${i*25}ms`;
+                        setTimeout(() => { span.style.opacity = 1; span.style.transform = 'translateY(0)'; }, 50);
+                        entry.target.appendChild(span);
+                    });
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, { threshold: 0.2 });
+        document.querySelectorAll('.reveal-text').forEach(el => observer.observe(el));
+
+        async function checkHealth() {
+            try { const res = await fetch(`${API_BASE}/health`); const dot = document.getElementById('api-dot');
+                if (res.ok) { dot.style.background = '#00ff88'; dot.style.boxShadow = '0 0 10px #00ff88'; } else { dot.style.background = '#ff5050'; dot.style.boxShadow = '0 0 10px #ff5050'; }
+            } catch(e) { document.getElementById('api-dot').style.background = '#ff5050'; }
+        }
+        checkHealth(); setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>
