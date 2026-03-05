@@ -1104,14 +1104,16 @@
           Convert Your File
         </h2>
         <div class="upload-zone sonar-pulse" id="drop-zone">
-          <svg viewBox="0 0 24 24">
-            <path
-              d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
-            />
-          </svg>
-          <h3>Drag and drop your file here</h3>
-          <p>or click to browse</p>
-          <span>Supports .txt .csv .tsv — Max 5MB</span>
+          <div id="drop-zone-content">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
+              />
+            </svg>
+            <h3>Drag and drop your file here</h3>
+            <p>or click to browse</p>
+            <span>Supports .txt .csv .tsv — Max 5MB</span>
+          </div>
           <input
             type="file"
             id="file-input"
@@ -1225,7 +1227,7 @@
         <p class="sec-sub">
           Click any sample to load it instantly into the converter above
         </p>
-        <div class="samples-grid" id="samples-grid">
+        <div id="samples-grid" class="samples-grid">
           <!-- Dynamically populated -->
         </div>
       </div>
@@ -1952,28 +1954,67 @@ console.<span class="num">log</span>(preview.headers, preview.preview_rows);</pr
 
       // Feature: Load Samples
       async function loadSamples() {
+        const grid = document.getElementById("samples-grid");
+
+        // Show loading skeleton cards while API wakes up
+        grid.innerHTML = "";
+        for (let i = 0; i < 5; i++) {
+          const skeleton = document.createElement("div");
+          skeleton.className = "sample-card tilt-card";
+          skeleton.style.cssText = "opacity:0.4; min-height:180px;";
+          skeleton.innerHTML = `
+            <div class="spotlight"></div>
+            <div class="tilt-content">
+                <div style="width:40px; height:8px; background:var(--amber-soft); border-radius:4px; margin-bottom:12px;"></div>
+                <div style="width:100%; height:10px; background:rgba(255,255,255,0.05); border-radius:4px; margin-bottom:8px;"></div>
+                <div style="width:70%; height:10px; background:rgba(255,255,255,0.03); border-radius:4px; margin-bottom:8px;"></div>
+                <div style="width:50%; height:8px; background:rgba(255,255,255,0.03); border-radius:4px; margin-bottom:20px;"></div>
+                <div style="width:100%; height:36px; background:rgba(240,165,0,0.05); border-radius:100px;"></div>
+            </div>
+        `;
+          grid.appendChild(skeleton);
+        }
+
         try {
-          const res = await fetch(`${API_BASE}/samples`);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
+          const res = await fetch(`${API_BASE}/samples`, {
+            signal: controller.signal,
+          });
+          clearTimeout(timeout);
+
           if (res.ok) {
             const data = await res.json();
-            const grid = document.getElementById("samples-grid");
             grid.innerHTML = "";
+
+            const descriptions = {
+              "employees.csv": "Employee records with departments and salaries",
+              "movies.txt": "Classic pipe-delimited movie database",
+              "products.tsv": "Product catalog with pricing and categories",
+              "students_grades.txt": "Student academic records and grades",
+              "weather_data.csv": "Daily weather measurements and readings",
+            };
+
             data.samples.forEach((s) => {
               const div = document.createElement("div");
               div.className = "sample-card tilt-card";
               div.innerHTML = `
-                            <div class="spotlight"></div>
-                            <div class="tilt-content">
-                                <span class="sample-fmt">${s.extension}</span>
-                                <h3 class="sample-name">${s.filename}</h3>
-                                <p class="sample-desc" style="color:var(--grey);">${{ "employees.csv": "Employee records with departments and salaries", "movies.txt": "Classic pipe-delimited movie database", "products.tsv": "Product catalog with pricing and categories", "students_grades.txt": "Student academic records and grades", "weather_data.csv": "Daily weather measurements and readings" }[s.filename] || "Sample data file for testing"}</p>                                <p class="sample-size">${s.size_kb} KB</p>
-                                <button class="btn-pill btn-glass magnetic" onclick="loadSampleFile('${s.filename}')" style="font-size:13px; padding:10px 24px; width:100%"><span class="mag-content">Load Sample</span></button>
-                            </div>
-                        `;
+                    <div class="spotlight"></div>
+                    <div class="tilt-content">
+                        <span class="sample-fmt">${s.extension}</span>
+                        <h3 class="sample-name">${s.filename}</h3>
+                        <p class="sample-desc">${descriptions[s.filename] || "Sample data file for testing"}</p>
+                        <p class="sample-size">${s.size_kb} KB</p>
+                        <button class="btn-pill btn-glass magnetic" onclick="loadSampleFile('${s.filename}')" style="font-size:13px; padding:10px 24px; width:100%">
+                            <span class="mag-content">Load Sample</span>
+                        </button>
+                    </div>
+                `;
               grid.appendChild(div);
             });
 
-            // Re-apply tilt cards to dynamically created sample cards
+            // Re-apply tilt to dynamic cards
             grid.querySelectorAll(".tilt-card").forEach((card) => {
               card.addEventListener("mousemove", (e) => {
                 const rect = card.getBoundingClientRect();
@@ -1983,17 +2024,17 @@ console.<span class="num">log</span>(preview.headers, preview.preview_rows);</pr
                 const cy = rect.height / 2;
                 const rotX = ((y - cy) / cy) * -10;
                 const rotY = ((x - cx) / cx) * 10;
-                card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
+                card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02,1.02,1.02)`;
                 const spotlight = card.querySelector(".spotlight");
                 if (spotlight)
                   spotlight.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(240,165,0,0.15) 0%, transparent 60%)`;
               });
               card.addEventListener("mouseleave", () => {
-                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)`;
               });
             });
 
-            // Re-apply magnetic to dynamically created buttons
+            // Re-apply magnetic to dynamic buttons
             grid.querySelectorAll(".magnetic").forEach((btn) => {
               btn.addEventListener("mousemove", (e) => {
                 const rect = btn.getBoundingClientRect();
@@ -2010,9 +2051,15 @@ console.<span class="num">log</span>(preview.headers, preview.preview_rows);</pr
                 if (content) content.style.transform = "";
               });
             });
+          } else {
+            grid.innerHTML =
+              '<p style="color:var(--grey); text-align:center; grid-column:1/-1; padding:40px 0;">Sample files unavailable right now. Please try uploading your own file above.</p>';
           }
         } catch (e) {
-          console.error("Samples load failed", e);
+          // AbortError means timeout, other errors mean network failure
+          grid.innerHTML =
+            '<p style="color:var(--grey); text-align:center; grid-column:1/-1; padding:40px 0;">API is waking up. Refresh the page in 30 seconds to load sample files.</p>';
+          console.error("Samples load failed:", e);
         }
       }
       loadSamples();
@@ -2070,46 +2117,84 @@ console.<span class="num">log</span>(preview.headers, preview.preview_rows);</pr
         }
       });
 
+      function resetDropZone() {
+        currentFile = null;
+        document.getElementById("drop-zone-content").innerHTML = `
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        <h3>Drag and drop your file here</h3>
+        <p>or click to browse</p>
+        <span>Supports .txt .csv .tsv — Max 5MB</span>
+    `;
+        previewGrid.style.display = "none";
+        formatToggles.style.display = "none";
+        convertBtn.style.display = "none";
+        resultsArea.style.display = "none";
+        document.getElementById("file-input").value = "";
+      }
+
       async function doPreview() {
         if (!currentFile) return;
-        // Reset UI
+
+        // Reset results area structure first
         resultsArea.style.display = "none";
         resultsArea.innerHTML = `
-    <div id="downloads-container"></div>
-    <div id="json-panel" style="display:none;">
-        <div class="json-header">
-            <span>JSON PREVIEW</span>
-            <button id="copy-json" class="copy-btn">Copy</button>
+        <div id="downloads-container"></div>
+        <div id="json-panel" style="display:none;">
+            <div class="json-header">
+                <span>JSON PREVIEW</span>
+                <button id="copy-json" class="copy-btn">Copy</button>
+            </div>
+            <pre id="json-content"></pre>
         </div>
-        <pre id="json-content"></pre>
-    </div>
-    <div id="recent-sessions" style="margin-top:40px; display:none;">
-        <h4 style="margin-bottom:12px;">Recent Conversions</h4>
-        <div id="recent-list"></div>
-    </div>
-`;
-document.getElementById('copy-json').addEventListener('click', function() {
-    navigator.clipboard.writeText(document.getElementById('json-content').innerText);
-    this.innerText = 'Copied!';
-    setTimeout(() => this.innerText = 'Copy', 2000);
-});
+        <div id="recent-sessions" style="margin-top:40px; display:none;">
+            <h4 style="margin-bottom:12px;">Recent Conversions</h4>
+            <div id="recent-list"></div>
+        </div>
+    `;
+        document
+          .getElementById("copy-json")
+          .addEventListener("click", function () {
+            navigator.clipboard.writeText(
+              document.getElementById("json-content").innerText,
+            );
+            this.innerText = "Copied!";
+            setTimeout(() => (this.innerText = "Copy"), 2000);
+          });
 
-        document.getElementById("drop-zone").innerHTML =
-          `<div style="color:var(--amber); font-family:'Syne', sans-serif;">Analyzing ${currentFile.name}...</div>`;
+        // Hide UI components
+        previewGrid.style.display = "none";
+        formatToggles.style.display = "none";
+        convertBtn.style.display = "none";
+
+        // Show analysing state with wake-up message
+        document.getElementById("drop-zone-content").innerHTML = `
+        <div style="color:var(--amber); font-family:'Syne', sans-serif; padding:20px; text-align:center;">
+            <div style="margin-bottom:12px;">Analyzing ${currentFile.name}...</div>
+            <div style="font-size:13px; color:var(--grey); font-family:'Inter';">If this takes more than 10 seconds, the API is waking up from sleep. Please wait up to 60 seconds.</div>
+        </div>
+    `;
 
         const fd = new FormData();
         fd.append("file", currentFile);
 
         try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 70000); // 70 second timeout
+
           const res = await fetch(`${API_BASE}/preview`, {
             method: "POST",
             body: fd,
+            signal: controller.signal,
           });
+          clearTimeout(timeout);
+
           const data = await res.json();
 
           if (data.success) {
-            document.getElementById("drop-zone").innerHTML =
-              `<h3 style="color:var(--white-elec); font-family:'Syne';">${currentFile.name}</h3><span style="color:var(--grey);">${(currentFile.size / 1024).toFixed(1)} KB</span>`;
+            document.getElementById("drop-zone-content").innerHTML = `
+                <h3 style="color:var(--white-elec); font-family:'Syne';">${currentFile.name}</h3>
+                <span style="color:var(--grey);">${(currentFile.size / 1024).toFixed(1)} KB</span>
+            `;
 
             document.getElementById("av-filename").innerText = data.filename;
             document.getElementById("av-delim-char").innerText =
@@ -2147,12 +2232,24 @@ document.getElementById('copy-json').addEventListener('click', function() {
             formatToggles.style.display = "flex";
             convertBtn.style.display = "inline-block";
           } else {
-            document.getElementById("drop-zone").innerHTML =
-              `<span style="color:#ff5050;">Error: ${data.error}</span><br><br><span style="text-decoration:underline;">Try another file</span>`;
+            document.getElementById("drop-zone-content").innerHTML = `
+                <span style="color:#ff5050;">Error: ${data.error}</span><br><br>
+                <span style="text-decoration:underline; cursor:pointer;" onclick="resetDropZone()">Try another file</span>
+            `;
           }
         } catch (e) {
-          document.getElementById("drop-zone").innerHTML =
-            `<span style="color:#ff5050;">Connection Error</span>`;
+          if (e.name === "AbortError") {
+            document.getElementById("drop-zone-content").innerHTML = `
+                <span style="color:#ff5050;">Request timed out. The API took too long to respond.</span><br><br>
+                <span style="color:var(--grey); font-size:14px;">The server may be cold starting. Wait 30 seconds then</span><br>
+                <span style="color:var(--amber); text-decoration:underline; cursor:pointer;" onclick="resetDropZone()">click here to try again</span>
+            `;
+          } else {
+            document.getElementById("drop-zone-content").innerHTML = `
+                <span style="color:#ff5050;">Connection Error. Check your internet connection.</span><br><br>
+                <span style="color:var(--amber); text-decoration:underline; cursor:pointer;" onclick="resetDropZone()">Try again</span>
+            `;
+          }
         }
       }
 
@@ -2172,10 +2269,14 @@ document.getElementById('copy-json').addEventListener('click', function() {
         fd.append("file", currentFile);
 
         try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 70000);
           const res = await fetch(`${API_BASE}/upload`, {
             method: "POST",
             body: fd,
+            signal: controller.signal,
           });
+          clearTimeout(timeout);
           const data = await res.json();
 
           if (data.success) {
@@ -2273,7 +2374,15 @@ document.getElementById('results-area').insertBefore(sep, document.getElementByI
             alert("Conversion failed: " + data.error);
           }
         } catch (e) {
-          alert("Connection error");
+          convertBtn.innerHTML = originalText;
+          convertBtn.disabled = false;
+          if (e.name === "AbortError") {
+            alert(
+              "The server took too long to respond. The API may be waking up from sleep. Please wait 30 seconds and try again.",
+            );
+          } else {
+            alert("Connection error. Please check your internet and try again.");
+          }
         } finally {
           convertBtn.innerHTML = originalText;
           convertBtn.disabled = false;
