@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="icon" id="favicon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230A0A0A'/><path d='M35 30h20c10 0 15 5 15 15v10c0 10-5 15-15 15H35V30zm10 10v20h10c3 0 5-2 5-5V45c0-3-2-5-5-5H45z' fill='%2338BDF8'/><circle id='status-dot' cx='80' cy='20' r='12' fill='%238892a4'/></svg>">
     <style>
         :root {
             --bg-0: #0C0C0E;
@@ -462,6 +463,7 @@
             const pill = document.getElementById('nav-pill');
             const active = document.querySelector('.nav-link.active');
             const updatePill = (el) => {
+                if (!pill || !el) return;
                 pill.style.opacity = '1';
                 pill.style.width = el.offsetWidth + 'px';
                 pill.style.left = el.offsetLeft + 'px';
@@ -473,17 +475,50 @@
             });
         }
 
-        async function initHealthCheck() {
+        // Live Health & Favicon Status
+        async function checkHealth() {
             try {
-                const res = await fetch(`${API_BASE}/health`);
+                const res = await fetch('https://text-csv-json-converter.onrender.com/health');
+                const dot = document.getElementById('health-dot');
                 if (res.ok) {
-                    const dot = document.getElementById('health-dot');
-                    dot.style.display = 'block';
-                    dot.style.background = '#22C55E';
-                    dot.style.boxShadow = '0 0 10px #22C55E';
+                    if (dot) {
+                        dot.style.display = 'block';
+                        dot.style.background = 'var(--success)';
+                        dot.style.boxShadow = '0 0 10px var(--success)';
+                    }
+                    updateFavicon('#22C55E'); // Green
+                } else {
+                    throw new Error();
                 }
-            } catch(e) {}
+            } catch (e) {
+                const dot = document.getElementById('health-dot');
+                if (dot) {
+                    dot.style.display = 'block';
+                    dot.style.background = 'var(--error)';
+                    dot.style.boxShadow = '0 0 10px var(--error)';
+                }
+                updateFavicon('#EF4444'); // Red
+            }
         }
+
+        function updateFavicon(color) {
+            let favicon = document.getElementById('favicon');
+            if (!favicon) {
+                favicon = document.createElement('link');
+                favicon.id = 'favicon';
+                favicon.rel = 'icon';
+                document.head.appendChild(favicon);
+            }
+            const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230A0A0A'/><path d='M35 30h20c10 0 15 5 15 15v10c0 10-5 15-15 15H35V30zm10 10v20h10c3 0 5-2 5-5V45c0-3-2-5-5-5H45z' fill='%2338BDF8'/><circle cx='80' cy='20' r='14' fill='${color.replace('#', '%23')}'/></svg>`;
+            favicon.href = `data:image/svg+xml,${svg}`;
+        }
+        
+        // Initial setup
+        initNavPill();
+        updateUI(); 
+        initReveal();
+        checkHealth();
+        setInterval(checkHealth, 30000); // Check every 30s
     </script>
 </body>
 </html>

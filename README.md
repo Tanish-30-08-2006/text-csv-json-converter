@@ -7,11 +7,11 @@
 
 ## 🌐 Live Deployments
 
-| Version | Design | Stack | URL |
-|---------|--------|-------|-----|
-| **v2 — Surgical Dark** *(latest)* | Dark Charcoal + Ice Blue, 12 animations | HTML/CSS/JS | [datadrop-v2.vercel.app](https://datadrop-v2.vercel.app) |
-| **v1 — Amber Dark** | Dark + Amber, particle field | HTML/CSS/JS | [datadrop-sigma.vercel.app](https://datadrop-sigma.vercel.app) |
-| **Backend API** | — | Python + Flask | [text-csv-json-converter.onrender.com](https://text-csv-json-converter.onrender.com) |
+| Version                           | Design                                  | Stack          | URL                                                                                  |
+| --------------------------------- | --------------------------------------- | -------------- | ------------------------------------------------------------------------------------ |
+| **v2 — Surgical Dark** _(latest)_ | Dark Charcoal + Ice Blue, 12 animations | HTML/CSS/JS    | [datadrop-v2.vercel.app](https://datadrop-v2.vercel.app)                             |
+| **v1 — Amber Dark**               | Dark + Amber, particle field            | HTML/CSS/JS    | [datadrop-sigma.vercel.app](https://datadrop-sigma.vercel.app)                       |
+| **Backend API**                   | —                                       | Python + Flask | [text-csv-json-converter.onrender.com](https://text-csv-json-converter.onrender.com) |
 
 <br>
 
@@ -83,17 +83,17 @@ One upload. Four outputs. Zero configuration.
 
 ## 🔌 API Endpoints — All 9
 
-| Method | Endpoint | Description | Rate Limit |
-|--------|----------|-------------|------------|
-| `POST` | `/upload` | Upload file → convert to all 4 formats | 10 / min |
-| `POST` | `/preview` | Preview headers + first 5 rows before converting | 20 / min |
-| `GET` | `/download/<filename>` | Download a converted file by name | 200 / day |
-| `GET` | `/json-preview/<filename>` | View first 10 records of a JSON file inline | 200 / day |
-| `GET` | `/stats` | Live conversion statistics | 200 / day |
-| `GET` | `/health` | API health check ping | No limit |
-| `GET` | `/api-docs` | Full machine-readable API documentation | 200 / day |
-| `GET` | `/samples` | List all available sample files | 200 / day |
-| `GET` | `/samples/<filename>` | Download a specific sample file | 200 / day |
+| Method | Endpoint                   | Description                                      | Rate Limit |
+| ------ | -------------------------- | ------------------------------------------------ | ---------- |
+| `POST` | `/upload`                  | Upload file → convert to all 4 formats           | 10 / min   |
+| `POST` | `/preview`                 | Preview headers + first 5 rows before converting | 20 / min   |
+| `GET`  | `/download/<filename>`     | Download a converted file by name                | 200 / day  |
+| `GET`  | `/json-preview/<filename>` | View first 10 records of a JSON file inline      | 200 / day  |
+| `GET`  | `/stats`                   | Live conversion statistics                       | 200 / day  |
+| `GET`  | `/health`                  | API health check ping                            | No limit   |
+| `GET`  | `/api-docs`                | Full machine-readable API documentation          | 200 / day  |
+| `GET`  | `/samples`                 | List all available sample files                  | 200 / day  |
+| `GET`  | `/samples/<filename>`      | Download a specific sample file                  | 200 / day  |
 
 **Base URL:** `https://text-csv-json-converter.onrender.com`
 
@@ -120,15 +120,18 @@ curl https://text-csv-json-converter.onrender.com/health
 ```javascript
 // JavaScript — convert a file
 const formData = new FormData();
-formData.append('file', fileInput.files[0]);
+formData.append("file", fileInput.files[0]);
 
-const response = await fetch('https://text-csv-json-converter.onrender.com/upload', {
-  method: 'POST',
-  body: formData
-});
+const response = await fetch(
+  "https://text-csv-json-converter.onrender.com/upload",
+  {
+    method: "POST",
+    body: formData,
+  },
+);
 
 const result = await response.json();
-console.log(result.outputs); 
+console.log(result.outputs);
 // → ["data.csv", "data.xlsx", "data.json", "data_nested.json"]
 ```
 
@@ -140,7 +143,7 @@ console.log(result.outputs);
 
 ### The Delimiter Problem
 
-Raw data files use different *separator characters* (delimiters) to mark where one column ends and another begins. There is no universal standard — it depends on the tool that exported the file.
+Raw data files use different _separator characters_ (delimiters) to mark where one column ends and another begins. There is no universal standard — it depends on the tool that exported the file.
 
 ```
 Comma-separated (CSV):     name,age,city
@@ -183,19 +186,19 @@ INPUT FILE (first line only)
 ```python
 def detect_delimiter(first_line):
     candidates = ['|', ',', '\t', ';']
-    
+
     counts = {}
     for char in candidates:
         counts[char] = first_line.count(char)
     #  counts = {'|': 0, ',': 2, '\t': 0, ';': 0}
-    
+
     detected = max(counts, key=counts.get)
     #  max() with key=counts.get → finds key with highest VALUE
     #  result → ','
-    
+
     if counts[detected] == 0:
         return '|'   # fallback if no delimiter found at all
-    
+
     return detected
 ```
 
@@ -329,12 +332,14 @@ data/processed/     ←  All 4 output files appear here automatically
 ```
 
 **Run the watcher:**
+
 ```bash
 cd backend/src
 python watcher.py
 ```
 
 **Output:**
+
 ```
 ════════════════════════════════════════════════════════════
    FILE WATCHER STARTED
@@ -357,11 +362,11 @@ python watcher.py
 
 Make sure you have these installed:
 
-| Tool | Version | Check |
-|------|---------|-------|
-| Python | 3.9+ | `python --version` |
-| pip | latest | `pip --version` |
-| Git | any | `git --version` |
+| Tool   | Version | Check              |
+| ------ | ------- | ------------------ |
+| Python | 3.9+    | `python --version` |
+| pip    | latest  | `pip --version`    |
+| Git    | any     | `git --version`    |
 
 <br>
 
@@ -407,6 +412,7 @@ python app.py
 ```
 
 You should see:
+
 ```
  * Running on http://0.0.0.0:5000
  * Debug mode: off
@@ -486,6 +492,11 @@ ANIMATIONS (12 total)
   A4  Scroll reveal                 A10 Sliding nav pill
   A5  Card lift on hover            A11 Magnetic buttons
   A6  Spotlight torch effect        A12 Blinking cursor (code)
+
+### Micro-Features
+- **Status-Aware Favicon**: A theme-intelligent SVG icon that monitors API health (Green/Red) in real-time within the browser tab.
+- **Integrated Sample Files**: 5 production-ready datasets (`students_grades`, `employees`, etc.) fetchable with a single click.
+- **One-Click Loading**: Automatic blob-to-file injection and smooth-scrolling UX flow.
 ```
 
 **Hero background:** Diagonal ice-blue light beams at -35° with film grain noise texture — inspired by Raycast.com.
@@ -538,11 +549,11 @@ ANIMATIONS (12 total)
 
 Live stats available at `/stats` endpoint. Updated after every conversion.
 
-| Metric | Endpoint | Description |
-|--------|----------|-------------|
-| Files Converted | `/stats` → `files_converted` | Rolling total since deployment |
-| Avg Speed | `/stats` → `processing_speed_ms` | Rolling average ms per conversion |
-| Formats | `/stats` → `formats_supported` | Always 6: TXT, CSV, TSV, XLSX, JSON, Nested JSON |
+| Metric          | Endpoint                         | Description                                      |
+| --------------- | -------------------------------- | ------------------------------------------------ |
+| Files Converted | `/stats` → `files_converted`     | Rolling total since deployment                   |
+| Avg Speed       | `/stats` → `processing_speed_ms` | Rolling average ms per conversion                |
+| Formats         | `/stats` → `formats_supported`   | Always 6: TXT, CSV, TSV, XLSX, JSON, Nested JSON |
 
 <br>
 
@@ -550,12 +561,12 @@ Live stats available at `/stats` endpoint. Updated after every conversion.
 
 ## 🔄 Changelog
 
-| Version | Date | Highlights |
-|---------|------|------------|
+| Version  | Date       | Highlights                                                      |
+| -------- | ---------- | --------------------------------------------------------------- |
 | **v1.3** | March 2026 | Frontend v2 surgical dark redesign, 12 animations, file watcher |
-| **v1.2** | March 2026 | `/preview`, `/json-preview`, `/api-docs`, `/samples` endpoints |
-| **v1.1** | March 2026 | Render deployment, OWASP security, rate limiting |
-| **v1.0** | March 2026 | `converter.py`, `watcher.py`, 4 core endpoints |
+| **v1.2** | March 2026 | `/preview`, `/json-preview`, `/api-docs`, `/samples` endpoints  |
+| **v1.1** | March 2026 | Render deployment, OWASP security, rate limiting                |
+| **v1.0** | March 2026 | `converter.py`, `watcher.py`, 4 core endpoints                  |
 
 <br>
 
@@ -566,11 +577,11 @@ Live stats available at `/stats` endpoint. Updated after every conversion.
 **Tanish Sanghavi**  
 B.Tech @ DAIICT, Gandhinagar · Explorer
 
-| Platform | Link |
-|----------|------|
-| GitHub | [@Tanish-30-08-2006](https://github.com/Tanish-30-08-2006) |
-| Instagram | [@tanish__sanghavi](https://www.instagram.com/tanish__sanghavi/) |
-| Email | tanishsanghavi2@gmail.com |
+| Platform  | Link                                                               |
+| --------- | ------------------------------------------------------------------ |
+| GitHub    | [@Tanish-30-08-2006](https://github.com/Tanish-30-08-2006)         |
+| Instagram | [@tanish\_\_sanghavi](https://www.instagram.com/tanish__sanghavi/) |
+| Email     | tanishsanghavi2@gmail.com                                          |
 
 <br>
 
