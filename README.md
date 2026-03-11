@@ -17,7 +17,7 @@
 
 ## 📸 Screenshots
 
-### Dark Mode Interface
+### Home Page Interface
 
 ![Home Page](app_screenshots/home_page.png)
 
