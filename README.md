@@ -17,11 +17,14 @@
 
 ## 📸 Screenshots
 
-### Dark Mode Interface
-![Home Page](app_screenshots/home_page.png)
+<p align="center">
+  <img src="app_screenshots/home_page.png" width="48%" alt="Home Page" />
+  <img src="app_screenshots/file_converter_section.png" width="48%" alt="Converter Section" />
+</p>
 
-### Conversion Workflow
-![Converter Section](app_screenshots/file_converter_section.png)
+<p align="center">
+  <i>Home Page Interface &nbsp; | &nbsp; Conversion Workflow</i>
+</p>
 
 ---
 
