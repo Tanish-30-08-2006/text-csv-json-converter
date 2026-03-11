@@ -15,6 +15,14 @@
 
 <br>
 
+## 📸 Screenshots
+
+### Dark Mode Interface
+![Home Page](app_screenshots/home_page.png)
+
+### Conversion Workflow
+![Converter Section](app_screenshots/file_converter_section.png)
+
 ---
 
 ## 📁 Project Structure
